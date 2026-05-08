@@ -1,0 +1,118 @@
+.inputbar-glass {
+  width: 680px;
+  min-height: 64px;
+  background: rgba(28, 28, 30, 0.72);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  padding: 4px;
+}
+
+.inputbar-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  height: 56px;
+}
+
+/* Plugin button */
+.inputbar-plugin-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.inputbar-plugin-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+.inputbar-plugin-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+/* Plugin dropdown */
+.inputbar-plugin-menu {
+  position: absolute;
+  top: 72px;
+  left: 12px;
+  background: rgba(28, 28, 30, 0.92);
+  backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 6px;
+  min-width: 180px;
+  z-index: 100;
+}
+.inputbar-plugin-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+}
+.inputbar-plugin-item:hover,
+.inputbar-plugin-item.active {
+  background: rgba(255, 255, 255, 0.1);
+}
+.plugicon {
+  font-size: 18px;
+}
+
+/* Input */
+.inputbar-input {
+  flex: 1;
+  height: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 400;
+  min-width: 0;
+}
+.inputbar-input::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+/* Voice */
+.inputbar-voice-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.inputbar-voice-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+.inputbar-voice-btn.listening {
+  background: rgba(255, 69, 58, 0.3);
+}
+.voice-icon {
+  font-size: 18px;
+  line-height: 1;
+}
