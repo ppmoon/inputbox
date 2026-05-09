@@ -10,7 +10,7 @@ pub fn run() {
         .plugin(
             tauri_plugin_global_shortcut::Builder::new()
                 .with_handler(|app, shortcut, event| {
-                    if shortcut.matches(Modifiers::ALT, Code::Space)
+                    if shortcut.matches(Modifiers::ALT | Modifiers::SHIFT, Code::Space)
                         && event.state == ShortcutState::Pressed
                     {
                         if let Some(window) = app.get_webview_window("main") {
@@ -35,7 +35,7 @@ pub fn run() {
             #[cfg(target_os = "macos")]
             app.set_activation_policy(ActivationPolicy::Accessory);
 
-            app.global_shortcut().register("Alt+Space")?;
+            app.global_shortcut().register("Shift+Alt+Space")?;
             Ok(())
         })
         .run(tauri::generate_context!())
