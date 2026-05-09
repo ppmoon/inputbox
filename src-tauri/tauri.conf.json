@@ -51,9 +51,5 @@
       "nsis": {}
     }
   },
-  "plugins": {
-    "global-shortcut": {
-      "shortcuts": []
-    }
-  }
+  "plugins": {}
 }
