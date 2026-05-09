@@ -35,6 +35,13 @@ pub fn run() {
             #[cfg(target_os = "macos")]
             app.set_activation_policy(ActivationPolicy::Accessory);
 
+            let window = app.get_webview_window("main").unwrap();
+            // Force transparent webview background
+            let _ = window.eval(
+                "document.documentElement.style.setProperty('background','transparent','important');\
+                 document.body.style.setProperty('background','transparent','important');",
+            );
+
             app.global_shortcut().register("Shift+Alt+Space")?;
             Ok(())
         })

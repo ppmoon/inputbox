@@ -27,15 +27,25 @@ export default function InputBar({
     inputRef.current?.focus();
   }, []);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && activePlugin) {
-      onExecute(activePlugin, query);
-    } else if (e.key === "Escape") {
+  // Global ESC listener — works even when input is not focused
+  useEffect(() => {
+    const hideWindow = () => {
       try {
         import("@tauri-apps/api/window").then(({ getCurrentWindow }) => {
           getCurrentWindow().hide();
         });
       } catch {}
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") hideWindow();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && activePlugin) {
+      onExecute(activePlugin, query);
     }
   };
 
