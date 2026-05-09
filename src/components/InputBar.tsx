@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import type { Plugin } from "../plugins/registry";
 import "./InputBar.css";
 
@@ -29,15 +30,10 @@ export default function InputBar({
 
   // Global ESC listener — works even when input is not focused
   useEffect(() => {
-    const hideWindow = () => {
-      try {
-        import("@tauri-apps/api/window").then(({ getCurrentWindow }) => {
-          getCurrentWindow().hide();
-        });
-      } catch {}
-    };
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") hideWindow();
+      if (e.key === "Escape") {
+        getCurrentWindow().hide();
+      }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
