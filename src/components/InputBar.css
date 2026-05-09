@@ -116,3 +116,37 @@
   font-size: 18px;
   line-height: 1;
 }
+
+/* Suggestions dropdown */
+.inputbar-suggestions {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 4px;
+}
+
+.inputbar-suggestion-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.1s;
+}
+
+.inputbar-suggestion-item:hover,
+.inputbar-suggestion-item.selected {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.suggestion-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

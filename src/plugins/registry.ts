@@ -1,10 +1,4 @@
-export interface Plugin {
-  id: string;
-  name: string;
-  icon: string;
-  placeholder: string;
-  execute: (query: string) => Promise<string | null>;
-}
+import type { Plugin } from "./types";
 
 type PluginModule = { default: Plugin };
 
@@ -12,7 +6,6 @@ class PluginRegistry {
   private plugins: Plugin[] = [];
 
   async loadAll() {
-    // Built-in plugins
     const modules = import.meta.glob<PluginModule>("./*/index.ts", { eager: false });
     for (const path of Object.keys(modules)) {
       try {
