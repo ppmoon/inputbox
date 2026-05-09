@@ -16,14 +16,21 @@ function App() {
     });
   }, []);
 
-  // Load suggestions when plugin changes
-  useEffect(() => {
+  const loadSuggestions = useCallback(() => {
     if (!activePlugin?.suggestions) {
       setSuggestions([]);
       return;
     }
-    activePlugin.suggestions().then(setSuggestions);
+    activePlugin.suggestions().then((items) => {
+      setSuggestions(items);
+      setSelectedIndex(items.length > 0 ? 0 : -1);
+    });
   }, [activePlugin]);
+
+  // Load suggestions when plugin changes
+  useEffect(() => {
+    loadSuggestions();
+  }, [loadSuggestions]);
 
   const handleExecute = useCallback(
     async (plugin: Plugin, q: string) => {
@@ -34,12 +41,9 @@ function App() {
           await writeText(typeof result === "string" ? result : JSON.stringify(result));
         } catch {}
       }
-      // Reload suggestions after execute
-      if (plugin.suggestions) {
-        plugin.suggestions().then(setSuggestions);
-      }
+      loadSuggestions();
     },
-    [],
+    [loadSuggestions],
   );
 
   const handleSelectSuggestion = useCallback(
@@ -51,6 +55,25 @@ function App() {
     },
     [suggestions],
   );
+
+  const handleRemoveItem = useCallback(
+    (index: number) => {
+      const item = suggestions[index];
+      if (item && activePlugin?.removeItem) {
+        activePlugin.removeItem(item.value);
+        loadSuggestions();
+      }
+    },
+    [suggestions, activePlugin, loadSuggestions],
+  );
+
+  const handleClearItems = useCallback(() => {
+    if (activePlugin?.clearItems) {
+      activePlugin.clearItems();
+      setSuggestions([]);
+      setSelectedIndex(-1);
+    }
+  }, [activePlugin]);
 
   return (
     <InputBar
@@ -67,6 +90,8 @@ function App() {
       onExecute={handleExecute}
       onSelectSuggestion={handleSelectSuggestion}
       onSelectedIndexChange={setSelectedIndex}
+      onRemoveItem={handleRemoveItem}
+      onClearItems={handleClearItems}
     />
   );
 }

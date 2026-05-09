@@ -14,6 +14,17 @@ interface Props {
   onExecute: (plugin: Plugin, query: string) => void;
   onSelectSuggestion: (index: number) => void;
   onSelectedIndexChange: (index: number) => void;
+  onRemoveItem: (index: number) => void;
+  onClearItems: () => void;
+}
+
+function formatTimestamp(ts?: number): string {
+  if (!ts) return "";
+  const diff = Date.now() - ts;
+  if (diff < 60000) return "just now";
+  if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+  return `${Math.floor(diff / 86400000)}d ago`;
 }
 
 export default function InputBar({
@@ -27,6 +38,8 @@ export default function InputBar({
   onExecute,
   onSelectSuggestion,
   onSelectedIndexChange,
+  onRemoveItem,
+  onClearItems,
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
@@ -52,7 +65,7 @@ export default function InputBar({
   useEffect(() => {
     if (selectedIndex >= 0 && listRef.current) {
       const item = listRef.current.children[selectedIndex] as HTMLElement | undefined;
-      item?.scrollIntoView({ block: "nearest" });
+      item?.scrollIntoView?.({ block: "nearest" });
     }
   }, [selectedIndex]);
 
@@ -75,6 +88,9 @@ export default function InputBar({
         onSelectedIndexChange(
           selectedIndex > 0 ? selectedIndex - 1 : suggestions.length - 1,
         );
+      } else if (e.key === "Delete" && selectedIndex >= 0 && suggestions[selectedIndex]) {
+        e.preventDefault();
+        onRemoveItem(selectedIndex);
       }
     },
     [
@@ -85,6 +101,7 @@ export default function InputBar({
       onExecute,
       onSelectSuggestion,
       onSelectedIndexChange,
+      onRemoveItem,
     ],
   );
 
@@ -110,6 +127,8 @@ export default function InputBar({
     rec.start();
     setListening(true);
   };
+
+  const showPanel = suggestions.length > 0 && query.length === 0;
 
   return (
     <div className="inputbar-glass">
@@ -167,22 +186,49 @@ export default function InputBar({
         </button>
       </div>
 
-      {/* Suggestions dropdown */}
-      {suggestions.length > 0 && (
-        <div className="inputbar-suggestions" ref={listRef}>
-          {suggestions.map((item, i) => (
-            <button
-              key={i}
-              className={`inputbar-suggestion-item ${i === selectedIndex ? "selected" : ""}`}
-              onClick={() => {
-                onSelectSuggestion(i);
-                if (activePlugin) onExecute(activePlugin, item.value);
-              }}
-              onMouseEnter={() => onSelectedIndexChange(i)}
-            >
-              <span className="suggestion-title">{item.title}</span>
+      {/* History panel — shown when input is empty */}
+      {showPanel && (
+        <div className="history-panel">
+          <div className="history-header">
+            <span className="history-count">{suggestions.length} items</span>
+            <button className="history-clear-btn" onClick={onClearItems}>
+              Clear all
             </button>
-          ))}
+          </div>
+          <div className="history-list" ref={listRef}>
+            {suggestions.map((item, i) => (
+              <button
+                key={`${item.timestamp ?? i}-${i}`}
+                className={`history-item ${i === selectedIndex ? "selected" : ""}`}
+                onClick={() => {
+                  onSelectSuggestion(i);
+                  if (activePlugin) onExecute(activePlugin, item.value);
+                }}
+                onMouseEnter={() => onSelectedIndexChange(i)}
+              >
+                <span className="history-index">{i + 1}</span>
+                <span className="history-preview">
+                  <span className="history-title">{item.title}</span>
+                  {item.timestamp && (
+                    <span className="history-time">{formatTimestamp(item.timestamp)}</span>
+                  )}
+                </span>
+                <button
+                  className="history-delete-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRemoveItem(i);
+                  }}
+                  title="Remove from history"
+                >
+                  ×
+                </button>
+              </button>
+            ))}
+          </div>
+          <div className="history-footer">
+            <kbd>↑↓</kbd> navigate &nbsp; <kbd>Enter</kbd> paste &nbsp; <kbd>Del</kbd> remove
+          </div>
         </div>
       )}
     </div>

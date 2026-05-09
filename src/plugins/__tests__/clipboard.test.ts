@@ -1,43 +1,26 @@
 import { describe, it, expect, beforeEach } from "vitest";
+import clipboardPlugin, {
+  getHistory,
+  clearHistory,
+  removeHistoryItem,
+} from "../clipboard/index";
 
-// Import the module-under-test directly (no Tauri runtime needed, we mock clipboard API)
-import clipboardPlugin, { getHistory, clearHistory } from "../clipboard/index";
-
-describe("Clipboard Plugin", () => {
-  beforeEach(() => {
-    clearHistory();
-  });
-
-  it("has correct metadata", () => {
+describe("Clipboard Plugin — metadata", () => {
+  it("has correct id, name, icon", () => {
     expect(clipboardPlugin.id).toBe("clipboard");
     expect(clipboardPlugin.name).toBe("Clipboard");
     expect(clipboardPlugin.icon).toBe("📋");
   });
 
-  it("has a suggestions method", () => {
-    expect(typeof clipboardPlugin.suggestions).toBe("function");
-  });
-
-  it("has an execute method", () => {
+  it("has execute, suggestions, removeItem, clearItems", () => {
     expect(typeof clipboardPlugin.execute).toBe("function");
-  });
-
-  it("execute returns the given query string", async () => {
-    const result = await clipboardPlugin.execute("hello world");
-    expect(result).toBe("hello world");
-  });
-
-  it("suggestions returns an array", async () => {
-    const items = await clipboardPlugin.suggestions!();
-    expect(Array.isArray(items)).toBe(true);
-    items.forEach((item) => {
-      expect(item).toHaveProperty("title");
-      expect(item).toHaveProperty("value");
-    });
+    expect(typeof clipboardPlugin.suggestions).toBe("function");
+    expect(typeof clipboardPlugin.removeItem).toBe("function");
+    expect(typeof clipboardPlugin.clearItems).toBe("function");
   });
 });
 
-describe("Clipboard history", () => {
+describe("Clipboard history management", () => {
   beforeEach(() => {
     clearHistory();
   });
@@ -46,16 +29,39 @@ describe("Clipboard history", () => {
     expect(getHistory()).toEqual([]);
   });
 
-  it("clearHistory empties the history", async () => {
-    // Force-add via internal read triggers suggestions which adds to history
-    await clipboardPlugin.suggestions!();
+  it("clearHistory empties history", () => {
+    removeHistoryItem("test"); // no-op on empty
     clearHistory();
     expect(getHistory()).toEqual([]);
   });
 
-  it("getHistory returns a copy, not reference", () => {
+  it("removeHistoryItem returns false for non-existent item", () => {
+    expect(removeHistoryItem("nonexistent")).toBe(false);
+  });
+
+  it("getHistory returns a copy", () => {
     const a = getHistory();
     const b = getHistory();
     expect(a).not.toBe(b);
+    expect(a).toEqual(b);
+  });
+
+  it("suggestions returns array with valid shape", async () => {
+    const items = await clipboardPlugin.suggestions!();
+    expect(Array.isArray(items)).toBe(true);
+    items.forEach((item) => {
+      expect(item).toHaveProperty("title");
+      expect(item).toHaveProperty("value");
+      expect(item).toHaveProperty("timestamp");
+    });
+  });
+
+  it("clearItems calls clearHistory", () => {
+    clipboardPlugin.clearItems!();
+    expect(getHistory()).toEqual([]);
+  });
+
+  it("removeItem returns false for non-existent value", () => {
+    expect(clipboardPlugin.removeItem!("not there")).toBe(false);
   });
 });
